@@ -69,10 +69,11 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("add_attendance", add_attendance))
     app.add_handler(CommandHandler("show_attendance", show_attendance))
-    app.add_handler(CommandHandler("clear_attendance", clearatd))
+    app.add_handler(CommandHandler("clear_atd", clearatd))
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
 
 
 
