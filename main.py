@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
@@ -55,6 +55,13 @@ async def show_attendance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = format_attendance()
     await update.message.reply_text(text, parse_mode="Markdown")
 
+# /clear_attendance command
+async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    attendance_data.clear()
+    await update.message.reply_text(
+        "✅ All attendance codes have been cleared."
+    )
+
 # ========== MAIN ==========
 if __name__ == "__main__":
     app = ApplicationBuilder().token("8497434188:AAEfxxO-4NRoGZsFtiKsOHl8QsE0ot2-goM").build()
@@ -62,7 +69,10 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("add_attendance", add_attendance))
     app.add_handler(CommandHandler("show_attendance", show_attendance))
+    app.add_handler(CommandHandler("clear_attendance", clearatd))
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
+
 
