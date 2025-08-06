@@ -1,11 +1,11 @@
-from datetime import datetime
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from datetime import datetime
 
 # ========== CONFIG ==========
 import os
 BOT_TOKEN = os.getenv("8497434188:AAEfxxO-4NRoGZsFtiKsOHl8QsE0ot2-goM") # Replace with your actual token
-current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+current_date = datetime.now().strftime("%Y-%m-%d")
 
 # ========== DATA STORAGE ==========
 attendance_data = {}
@@ -55,8 +55,11 @@ async def show_attendance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = format_attendance()
     await update.message.reply_text(text, parse_mode="Markdown")
 
+# Store attendance in memory
+attendance_data = {}
+
 # /clear_attendance command
-async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def clear_attendance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     attendance_data.clear()
     await update.message.reply_text(
         "✅ All attendance codes have been cleared."
@@ -69,11 +72,7 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("add_attendance", add_attendance))
     app.add_handler(CommandHandler("show_attendance", show_attendance))
-    app.add_handler(CommandHandler("clear_atd", clearatd))
+    app.add_handler(CommandHandler("clear_attendance", clear_attendance))
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
-
-
-
-
