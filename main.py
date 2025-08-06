@@ -64,4 +64,5 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("show_attendance", show_attendance))
 
     print("✅ Attendance Bot is running...")
-    "app.run_polling()"
+    app.run_polling()
+
