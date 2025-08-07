@@ -25,8 +25,8 @@ def format_attendance():
         text += f'*Section "{section.upper()}"*\n'
         for subject, code in subjects.items():
             text += f"• {subject.capitalize()}: `{code}`\n"
-        text += "\n ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင် ;-;"
-    return text.strip()
+        Endtext = text + "\n ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင် ;-;"
+    return text.strip(), Endtext.strip()
 
 
 # ========== COMMANDS ==========
@@ -77,4 +77,5 @@ if __name__ == "__main__":
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
 
