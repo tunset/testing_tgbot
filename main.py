@@ -5,7 +5,7 @@ from datetime import datetime
 # ========== CONFIG ==========
 import os
 BOT_TOKEN = os.getenv("8497434188:AAEfxxO-4NRoGZsFtiKsOHl8QsE0ot2-goM") # Replace with your actual token
-current_date = datetime.now().strftime("%Y-%m-%d")
+current_date = datetime.now().strftime("%Y-%m-%d (%a)")
 
 # ========== DATA STORAGE ==========
 attendance_data = {}
@@ -76,3 +76,4 @@ if __name__ == "__main__":
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
