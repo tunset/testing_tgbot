@@ -23,8 +23,8 @@ def format_attendance():
     text = f"*Attendance Codes (Synced: {current_date})*\n\n"
     for section, subjects in attendance_data.items():
         text += f'*Section "{section.upper()}"*\n'
-        for subject, code in subjects.items():
-            text += f"• {subject.capitalize()}: `{code}`\n\n"
+        for subject, code in subjects.items() :
+            text += f"• {subject.capitalize()}: `{code}`\n"
         text += "\n"
     text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင် ;-;"
     return text.strip()
@@ -78,6 +78,7 @@ if __name__ == "__main__":
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
 
 
 
