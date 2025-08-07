@@ -4,7 +4,7 @@ from datetime import datetime
 
 # ========== CONFIG ==========
 import os
-BOT_TOKEN = os.getenv("8497434188:AAGiMk_qNVNAcvfhvGR0Xs7wfWczNA6jG8w") # Replace with your actual token
+TOKEN = os.getenv("BOT_TOKEN")
 current_date = datetime.now().strftime("%d-%b-%Y %a")
 
 # ========== DATA STORAGE ==========
@@ -68,7 +68,7 @@ async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ========== MAIN ==========
 if __name__ == "__main__":
-    app = ApplicationBuilder().token("8497434188:AAGiMk_qNVNAcvfhvGR0Xs7wfWczNA6jG8w").build()
+    app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("addatd", addatd))
@@ -77,3 +77,4 @@ if __name__ == "__main__":
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
