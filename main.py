@@ -10,6 +10,14 @@ current_date = datetime.now().strftime("%d-%b-%Y %a")
 # ========== DATA STORAGE ==========
 attendance_data = {}
 
+# Function to reset data if the day changes
+def check_date():
+    global current_date, attendance_data
+    today = datetime.now().date()
+    if today != current_date:
+        current_date = today
+        attendance_data.clear()
+
 # ========== HELPERS ==========
 def store_attendance(section, subject, code):
     if section not in attendance_data:
@@ -18,7 +26,7 @@ def store_attendance(section, subject, code):
 
 def format_attendance():
     if not attendance_data:
-        return f"❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n*ATD code ထည့်သွင်းရင် /addatd ကိုအသုံးပြုပါ။\n\n_(Synced: {current_date})_"
+        return f"❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n*ATD code ထည့်သွင်းရန် /addatd ကိုအသုံးပြုပါ။\n\n_(Synced: {current_date})_"
 
     text = f"*Attendance Codes (Synced: {current_date})*\n\n"
     for section, subjects in attendance_data.items():
@@ -78,6 +86,7 @@ if __name__ == "__main__":
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
+
 
 
 
