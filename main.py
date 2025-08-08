@@ -1,22 +1,53 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters 
 from datetime import datetime
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import asyncio
+
+# ====== Get messages from User =======
+import logging
+import sys
+
+# Main logger setup
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Prevent duplicate handlers
+if not logger.hasHandlers():
+    # Console handler with UTF-8 output
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(levelname)s:%(name)s: %(message)s')
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
+
+logger.propagate = False  # Prevent duplicate log lines
+
+# Optional: Mute noisy logs from libraries
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
+logging.getLogger("telegram").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"Message from {update.effective_user.username}: {update.message.text}")
 
 # ========== CONFIG ==========
 import os
 TOKEN = os.getenv("BOT_TOKEN")
-current_date = datetime.now().strftime("%d-%b-%Y %a")
 
 # ========== DATA STORAGE ==========
 attendance_data = {}
+current_date = datetime.now().strftime("%d-%b-%Y %a")
 
-# Function to reset data if the day changes
-def check_date():
-    global current_date, attendance_data
-    today = datetime.now().date()
-    if today != current_date:
-        current_date = today
-        attendance_data.clear()
+# Function to reset attendance daily
+def reset_daily_data():
+    global attendance_data, current_date
+    attendance_data.clear()
+    current_date = datetime.now().strftime("%d-%b-%Y %a")
+    print(f"[INFO] Data reset and synced at {current_date}")
 
 # ========== HELPERS ==========
 def store_attendance(section, subject, code):
@@ -36,7 +67,6 @@ def format_attendance():
         text += "\n"
     text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင် ;-;"
     return text.strip()
-
 
 # ========== COMMANDS ==========
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -65,15 +95,17 @@ async def atd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = format_attendance()
     await update.message.reply_text(text, parse_mode="Markdown")
 
-# Store attendance in memory
-attendance_data = {}
-
 # /clearatd command
 async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     attendance_data.clear()
     await update.message.reply_text(
         "✅ ATD code အားလုံးကိုဖျက်လိုက်ပါပြီ။"
     )
+
+async def main():
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # Reset at midnight
+    scheduler.start()
 
 # ========== MAIN ==========
 if __name__ == "__main__":
@@ -83,15 +115,9 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("addatd", addatd))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("clearatd", clearatd))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("✅ Attendance Bot is running...")
     app.run_polling()
 
-
-
-
-
-
-
-
-
+    asyncio.run(main())
