@@ -4,6 +4,18 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 
+# ===== Send ping for running bot 24/7
+from aiohttp import web
+
+async def handle_ping(request):
+    return web.Response(text="✅ Bot is alive!", content_type="text/plain")
+
+def setup_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle_ping)  # Respond to pings
+    runner = web.AppRunner(app)
+    return runner
+
 # ====== Get messages from User =======
 import logging
 import sys
@@ -106,6 +118,13 @@ async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # Reset at midnight
     scheduler.start()
+
+    # # Web server for UptimeRobot pinging
+    runner = setup_web_server()
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    await site.start()
+
 
 # ========== MAIN ==========
 if __name__ == "__main__":
