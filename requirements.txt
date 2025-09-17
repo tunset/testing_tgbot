@@ -1,4 +1,4 @@
-python-telegram-bot==20.8 
-apscheduler
-aiohttp
-pip>=25.2
+python-telegram-bot==20.8
+apscheduler==3.10.4
+aiohttp==3.9.5
+pip>=24.2
