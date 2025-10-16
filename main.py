@@ -85,8 +85,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Message from {update.effective_user.username}: {update.message.text}")
 
 # ===== Main =====
-async def main():
-    # Telegram app
+
+if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -95,24 +95,20 @@ async def main():
     app.add_handler(CommandHandler("clearatd", clearatd))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Scheduler
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # Myanmar midnight (UTC+6:30)
+    scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # UTC+6:30
     scheduler.start()
 
-    # Web server for Render
+    # Optional web server (if needed)
     web_app = setup_web_server()
     runner = web.AppRunner(web_app)
-    await runner.setup()
+    asyncio.get_event_loop().run_until_complete(runner.setup())
     site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-    await site.start()
+    asyncio.get_event_loop().run_until_complete(site.start())
 
     print("✅ Bot + Web server started")
-    await app.run_polling()
+    app.run_polling()
 
-if __name__ == "__main__":
-    import asyncio
-    asyncio.get_event_loop().run_until_complete(main())
 
 
 
