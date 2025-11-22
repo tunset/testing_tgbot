@@ -51,17 +51,17 @@ def format_attendance():
 # ===== Commands =====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "👋 Welcome! I can help you store attendance codes.\n\n"
-        "Commands:\n"
-        "/addatd [section] [subject] [code]\n"
-        "/atd (View saved ATD codes)\n"
-        "/clearatd (Clear all codes)"
+        "မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။\n\n"
+        "အသုံးပြုနည်းလမ်းညွှန်များ:\n"
+        "/addatd - Attendance Code အသစ်ထည့်ရန် အသုံးပြုပါ။\n"
+        "/atd - Save ထားသော ATD code များအားကြည့်ရန် အသုံးပြုပါ။\n"
+        "/clearatd - ထည့်ထားသော ATD code များအားလုံးကိုဖျက်ရန် အသုံးပြုပါ။"
     )
 
 async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) < 3:
         await update.message.reply_text(
-            "Format: /addatd [section] [subject] [code]"
+            "ATD code ကိုအောက်ပါ format အတိုင်းရိုက်ထည့်ပေးပါ။ \n\n /addatd [section] [subject] [code]"
         )
         return
     section = context.args[0]
@@ -69,7 +69,7 @@ async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     code = " ".join(context.args[2:])
     store_attendance(section, subject, code)
     await update.message.reply_text(
-        f"✅ Section *{section.upper()}* – *{subject.capitalize()}* code saved.",
+        f"✅ Section *{section.upper()}* အတွက် *{subject.capitalize()}* Code ကိုအောင်မြင်စွာထည့်သွင်းပြီးပါပြီ။",
         parse_mode="Markdown"
     )
 
@@ -79,7 +79,7 @@ async def atd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     attendance_data.clear()
-    await update.message.reply_text("✅ All ATD codes cleared.")
+    await update.message.reply_text("✅ ATD code အားလုံးကိုဖျက်လိုက်ပါပြီ။")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Message from {update.effective_user.username}: {update.message.text}")
@@ -108,6 +108,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
