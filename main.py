@@ -90,7 +90,6 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("addatd", addatd))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("clearatd", clearatd))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # UTC+6:30
@@ -105,6 +104,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
