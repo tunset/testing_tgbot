@@ -36,23 +36,23 @@ def store_attendance(section, subject, code):
 
 def format_attendance():
     if not attendance_data:
-        return f"❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။\n\n" \
-               f"*ATD code ထည့်သွင်းရန် /addatd ကိုအသုံးပြုပါ။*\n\n_(Synced: {current_date})_"
+        return f"*❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n" \
+               f"ATD code ထည့်သွင်းရန် /addatd ကိုအသုံးပြုပါ။\n\n_(Synced: {current_date})_"
 
-    text = f"*Attendance Codes (Synced: {current_date})*\n\n"
+    text = f"*▫️Attendance Codes (Synced: {current_date})*\n\n"
     for section, subjects in attendance_data.items():
         text += f'*Section "{section.upper()}"*\n'
         for subject, code in subjects.items():
             text += f"• {subject.capitalize()}: `{code}`\n"
         text += "\n"
-    text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့။"
+    text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင်🗿💔"
     return text.strip()
 
 # ===== Commands =====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။\n\n"
-        "အသုံးပြုနည်းလမ်းညွှန်များ:\n"
+        "👋 *မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။* 🤓\n\n"
+        "🙌 အသုံးပြုနည်းလမ်းညွှန်များ:\n\n"
         "/addatd - Attendance Code အသစ်ထည့်ရန် အသုံးပြုပါ။\n"
         "/atd - Save ထားသော ATD code များအားကြည့်ရန် အသုံးပြုပါ။\n"
         "/clearatd - ထည့်ထားသော ATD code များအားလုံးကိုဖျက်ရန် အသုံးပြုပါ။"
@@ -61,7 +61,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) < 3:
         await update.message.reply_text(
-            "ATD code ကိုအောက်ပါ format အတိုင်းရိုက်ထည့်ပေးပါ။ \n\n /addatd [section] [subject] [code]"
+            "ATD code ကိုအောက်ပါ format အတိုင်းရိုက်ထည့်ပေးပါ။ 🤗🔪 \n\n /addatd [section] [subject] [code]"
         )
         return
     section = context.args[0]
@@ -104,6 +104,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
