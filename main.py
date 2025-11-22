@@ -51,7 +51,7 @@ def format_attendance():
 # ===== Commands =====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        f"👋 *မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။* 🤓\n\n"
+        "👋 မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။ 🤓\n\n"
         "🙌 အသုံးပြုနည်းလမ်းညွှန်များ:\n\n"
         "/addatd - Attendance Code အသစ်ထည့်ရန် အသုံးပြုပါ။\n"
         "/atd - Save ထားသော ATD code များအားကြည့်ရန် အသုံးပြုပါ။\n"
@@ -104,6 +104,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
