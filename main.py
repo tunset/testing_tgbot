@@ -81,9 +81,6 @@ async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     attendance_data.clear()
     await update.message.reply_text("✅ ATD code အားလုံးကိုဖျက်လိုက်ပါပြီ။")
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logger.info(f"Message from {update.effective_user.username}: {update.message.text}")
-
 # ===== Main =====
 
 if __name__ == "__main__":
@@ -108,6 +105,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
