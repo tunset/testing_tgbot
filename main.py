@@ -33,13 +33,13 @@ def reset_daily_data():
 async def send_reminder(app):
     text = f"""*🚨ATD Reminder for those who forgot❗️*
     
-        ⚠️DO NOT FORGET TO TAKE ATTENDANCE⚠️
+    ⚠️DO NOT FORGET TO TAKE ATTENDANCE⚠️
         
-        Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ ကိုယ်မေ့ရင်ကိုယ်ပဲခံရမှာပါသငခတို့ 🥰
+    Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ ကိုယ်မေ့ရင်ကိုယ်ပဲခံရမှာပါသငခတို့ 🥰
         
-        /atd ကိုနှိပ်ပြီးယနေ့အတွက် ATD codes များကိုရယူနိုင်ပါတယ်။
+    /atd ကိုနှိပ်ပြီးယနေ့အတွက် ATD codes များကိုရယူနိုင်ပါတယ်။
         
-        _(Reminded at {current_time})_"""
+    _(Reminded at {current_time})_"""
     await app.bot.send_message(
         chat_id=-1002339036511,
         text = text,
@@ -120,8 +120,9 @@ if __name__ == "__main__":
     scheduler.add_job(
         send_reminder,
         trigger="cron",
+        day_of_week='mon-fri',
         hour=17,
-        minute=45,
+        minute=52,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -135,6 +136,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
