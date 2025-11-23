@@ -6,6 +6,9 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
+from pytz import timezone
+
+MYANMAR = timezone("Asia/Yangon")
 
 # ===== Ping Server for Render =====
 async def handle_ping(request):
@@ -28,6 +31,12 @@ def reset_daily_data():
     attendance_data.clear()
     current_date = datetime.now().strftime("%d-%b-%Y %a")
     print(f"[INFO] Data reset and synced at {current_date}")
+
+async def send_reminder(app):
+    await app.bot.send_message(
+        chat_id=-2339036511,
+        text="⏰ Reminder: Don't forget to take attendance!"
+    )
 
 def store_attendance(section, subject, code):
     if section not in attendance_data:
@@ -92,7 +101,18 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("clearatd", clearatd))
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30)  # UTC+6:30
+    
+    scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30) # UTC+6:30
+    
+    # Run every day at 18:30 (6:30 PM Myanmar Time)
+    scheduler.add_job(
+        send_reminder,
+        trigger="cron",
+        hour=11,
+        minute=10,
+        args=[app]   # Pass app to the function
+    )
+    
     scheduler.start()
 
     # Optional web server (if needed)
@@ -104,6 +124,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
