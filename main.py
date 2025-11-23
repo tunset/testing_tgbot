@@ -24,11 +24,16 @@ attendance_data = {}
 current_date = datetime.now().strftime("%d-%b-%Y %a")
 current_time = datetime.now().strftime("%I:%M:%S %p")
 
-def reset_daily_data():
+def reset_daily_data(app):
     global attendance_data, current_date
     attendance_data.clear()
     current_date = datetime.now().strftime("%d-%b-%Y %a")
-    print(f"[INFO] Data reset and synced at {current_date}")
+    text = f"✅All saved ATD codes are reset automatically. Ready for new code to be added."
+    await app.bot.send_message(
+        chat_id=-1002339036511,
+        text = text,
+        parse_mode="Markdown"
+    )
 
 async def send_reminder(app):
     text = f"""*🚨ATD Reminder for those who forgot❗️*
@@ -116,12 +121,12 @@ if __name__ == "__main__":
 
     scheduler = AsyncIOScheduler()
     
-    scheduler.add_job(reset_daily_data, "cron", hour=00, minute=15) 
+    scheduler.add_job(reset_daily_data, "cron", hour=8, minute=45) 
     scheduler.add_job(
         send_reminder,
         trigger="cron",
-        hour=18,
-        minute=50,
+        hour=20,
+        minute=11,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -135,6 +140,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
