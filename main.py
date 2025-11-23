@@ -104,7 +104,7 @@ if __name__ == "__main__":
         send_reminder,
         trigger="cron",
         hour=11,
-        minute=20,
+        minute=30,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -118,6 +118,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
