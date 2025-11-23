@@ -6,9 +6,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
-from pytz import timezone
-
-MYANMAR = timezone("Asia/Yangon")
 
 # ===== Ping Server for Render =====
 async def handle_ping(request):
@@ -103,16 +100,13 @@ if __name__ == "__main__":
     scheduler = AsyncIOScheduler()
     
     scheduler.add_job(reset_daily_data, "cron", hour=18, minute=30) # UTC+6:30
-    
-    # Run every day at 18:30 (6:30 PM Myanmar Time)
     scheduler.add_job(
         send_reminder,
         trigger="cron",
         hour=11,
-        minute=10,
+        minute=20,
         args=[app]   # Pass app to the function
     )
-    
     scheduler.start()
 
     # Optional web server (if needed)
@@ -124,6 +118,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
