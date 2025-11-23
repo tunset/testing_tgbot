@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     scheduler = AsyncIOScheduler()
     
-    scheduler.add_job(reset_daily_data, "cron", hour=8, minute=45) 
+    scheduler.add_job(reset_daily_data, "cron", hour=20, minute=50) 
     scheduler.add_job(
         send_reminder,
         trigger="cron",
@@ -140,6 +140,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
