@@ -34,12 +34,11 @@ async def send_reminder(app):
     text = f"""*🚨ATD Reminder for those who forgot❗️*
     
 ⚠️DO NOT FORGET TO TAKE ATTENDANCE⚠️
-        
 Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ ကိုယ်မေ့ရင်ကိုယ်ပဲခံရမှာပါသငခတို့ 🥰
         
-/atd ကိုနှိပ်ပြီးယနေ့အတွက် ATD codes များကိုရယူနိုင်ပါတယ်။
+💠 /atd ကိုနှိပ်ပြီးယနေ့အတွက် ATD codes များကိုရယူနိုင်ပါတယ်။
 
-Click [Take ATD](https://pathfinder-mm.org/portal/office/login/index.php) to go to PFI website
+💠 [Take ATD](https://pathfinder-mm.org/portal/office/login/index.php) ကိုနှိပ်၍ ATD သွားဖြည့်နိုင်ပါတယ်။
         
 _(Reminded at {current_time})_"""
     await app.bot.send_message(
@@ -136,6 +135,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
