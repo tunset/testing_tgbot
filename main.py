@@ -111,7 +111,6 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("addatd", addatd))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("chatid", chatid))
-
     app.add_handler(CommandHandler("clearatd", clearatd))
 
     scheduler = AsyncIOScheduler()
@@ -122,7 +121,7 @@ if __name__ == "__main__":
         trigger="cron",
         day_of_week='mon-fri',
         hour=18,
-        minute=7,
+        minute=15,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -136,6 +135,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
