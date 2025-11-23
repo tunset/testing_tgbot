@@ -122,7 +122,7 @@ if __name__ == "__main__":
         trigger="cron",
         day_of_week='mon-fri',
         hour=17,
-        minute=52,
+        minute=55,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -136,6 +136,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
