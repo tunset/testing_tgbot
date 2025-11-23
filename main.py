@@ -22,6 +22,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 # ===== Data =====
 attendance_data = {}
 current_date = datetime.now().strftime("%d-%b-%Y %a")
+current_time = datetime.now().strftime("%I:%M:%S %p")
 
 def reset_daily_data():
     global attendance_data, current_date
@@ -32,7 +33,9 @@ def reset_daily_data():
 async def send_reminder(app):
     await app.bot.send_message(
         chat_id=-1002339036511,
-        text="⏰ Reminder: Don't forget to take attendance!"
+        text=f"*🚨ATD Reminder for those who forgot❗️*\n\n
+        ⚠️DO NOT FORGET TO TAKE ATTENDANCE⚠️ \n\n Attendace ဖြည့်ဖိုမမေ့ကြပါနဲ့။ ကိုယ်မေ့ရင်ကိုယ်ပဲခံရမှာပါသငခတို 🥰 \n\n
+        /atd ကိုနှိပ်ပြီးယနေ့အတွက် ATD codes များကိုရယူနိုင်ပါတယ်။\n\n_(Reminded at {current_time})_"
     )
 
 def store_attendance(section, subject, code):
@@ -110,7 +113,7 @@ if __name__ == "__main__":
         send_reminder,
         trigger="cron",
         hour=12,
-        minute=10,
+        minute=45,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -124,6 +127,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
