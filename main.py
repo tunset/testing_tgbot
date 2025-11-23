@@ -55,6 +55,10 @@ def format_attendance():
     return text.strip()
 
 # ===== Commands =====
+
+async def chatid(update, context):
+    await update.message.reply_text(f"This chat ID: {update.effective_chat.id}")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။ 🤓\n\n"
@@ -95,6 +99,8 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("addatd", addatd))
     app.add_handler(CommandHandler("atd", atd))
+    app.add_handler(CommandHandler("chatid", chatid))
+
     app.add_handler(CommandHandler("clearatd", clearatd))
 
     scheduler = AsyncIOScheduler()
@@ -104,7 +110,7 @@ if __name__ == "__main__":
         send_reminder,
         trigger="cron",
         hour=11,
-        minute=30,
+        minute=50,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -118,6 +124,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
