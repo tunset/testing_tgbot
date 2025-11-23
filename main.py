@@ -31,7 +31,7 @@ def reset_daily_data():
 
 async def send_reminder(app):
     await app.bot.send_message(
-        chat_id=-2339036511,
+        chat_id=-1002339036511,
         text="⏰ Reminder: Don't forget to take attendance!"
     )
 
@@ -109,8 +109,8 @@ if __name__ == "__main__":
     scheduler.add_job(
         send_reminder,
         trigger="cron",
-        hour=11,
-        minute=50,
+        hour=12,
+        minute=10,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -124,6 +124,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
