@@ -41,10 +41,10 @@ Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ က�
         
 _(Reminded at {current_time})_"""
     
-GROUP_IDS = [
-    -1002339036511,
-    5069582224
-]
+    GROUP_IDS = [
+        -1002339036511,
+        5069582224
+    ]
 
     for chat_id in GROUP_IDS:
         await app.bot.send_message(
@@ -141,6 +141,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
