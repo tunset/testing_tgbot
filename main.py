@@ -40,11 +40,18 @@ Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ က�
 💠 [Take ATD](https://pathfinder-mm.org/portal/office/login/index.php) ကိုနှိပ်၍ ATD သွားဖြည့်နိုင်ပါတယ်။
         
 _(Reminded at {current_time})_"""
-    await app.bot.send_message(
-        chat_id=-1002339036511,
-        text = text,
-        parse_mode="Markdown"
-    )
+    
+GROUP_IDS = [
+    -1002339036511,
+    5069582224
+]
+
+    for chat_id in GROUP_IDS:
+        await app.bot.send_message(
+            chat_id=chat_id,
+            text = text,
+            parse_mode="Markdown"
+            )
 
 def store_attendance(section, subject, code):
     if section not in attendance_data:
@@ -115,12 +122,12 @@ if __name__ == "__main__":
 
     scheduler = AsyncIOScheduler()
     
-    scheduler.add_job(reset_daily_data, "cron", hour=21, minute=10)
+    scheduler.add_job(reset_daily_data, "cron", hour=1, minute=11)
     scheduler.add_job(
         send_reminder,
         trigger="cron",
-        hour=21,
-        minute=00,
+        hour=9,
+        minute=20,
         args=[app]   # Pass app to the function
     )
     scheduler.start()
@@ -134,6 +141,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
