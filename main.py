@@ -139,11 +139,12 @@ if __name__ == "__main__":
     web_app = setup_web_server()
     runner = web.AppRunner(web_app)
     asyncio.get_event_loop().run_until_complete(runner.setup())
-    site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 80)))
     asyncio.get_event_loop().run_until_complete(site.start())
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
