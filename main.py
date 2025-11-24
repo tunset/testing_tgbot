@@ -43,6 +43,7 @@ _(Reminded at {current_time})_"""
     
     GROUP_IDS = [
         -1002339036511,
+        -1002412292404,
         5069582224
     ]
 
@@ -63,13 +64,13 @@ def format_attendance():
         return f"*❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n" \
                f"ATD code ထည့်သွင်းရန် /addatd ကိုအသုံးပြုပါ။\n\n_(Synced: {current_date})_"
 
-    text = f"*▫️Attendance Codes (Synced: {current_date})*\n\n"
+    text = f"*▫️Attendance Codes (Requested at: {current_time})*\n\n"
     for section, subjects in attendance_data.items():
         text += f'*Section "{section.upper()}"*\n'
         for subject, code in subjects.items():
             text += f"• {subject.capitalize()}: `{code}`\n"
         text += "\n"
-    text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင်🗿💔"
+    text += f"ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင်🗿💔\n\n 👉 *[Take ATD Here](https://pathfinder-mm.org/portal/office/login/index.php)*"
     return text.strip()
 
 # ===== Commands =====
@@ -126,7 +127,8 @@ if __name__ == "__main__":
     scheduler.add_job(
         send_reminder,
         trigger="cron",
-        hour=9,
+        day_of_week='mon-fri',
+        hour=22,
         minute=30,
         args=[app]   # Pass app to the function
     )
@@ -141,6 +143,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
