@@ -70,7 +70,8 @@ def format_attendance():
         for subject, code in subjects.items():
             text += f"• {subject.capitalize()}: `{code}`\n"
         text += "\n"
-    text += f"ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင်🗿💔\n\n 👉 *[Take ATD Here](https://pathfinder-mm.org/portal/office/login/index.php)*"
+    text += "ATD code တောင်းပြီးဖြည့်ဖို့မမေ့ပါနဲ့ သငခ။ ကိုယ်မေ့ရင်ကိုယ်ခံပဲ မတတ်နိုင်🗿💔\n\n"
+    text += f"👉 *[Take ATD Here](https://pathfinder-mm.org/portal/office/login/index.php)*"
     return text.strip()
 
 # ===== Commands =====
@@ -143,6 +144,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
