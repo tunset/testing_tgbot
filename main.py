@@ -24,6 +24,9 @@ attendance_data = {}
 current_date = datetime.now().strftime("%d-%b-%Y %a")
 current_time = datetime.now().strftime("%I:%M:%S %p")
 
+def get_time():
+    return datetime.now().strftime("%I:%M:%S %p")
+
 def reset_daily_data():
     global attendance_data, current_date
     attendance_data.clear()
@@ -39,7 +42,7 @@ Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ က�
 
 💠 [Take ATD](https://pathfinder-mm.org/portal/office/login/index.php) ကိုနှိပ်၍ ATD သွားဖြည့်နိုင်ပါတယ်။
         
-_(Reminded at {current_time})_"""
+_(Reminded at {get_time()})_"""
     
     GROUP_IDS = [
         -1002339036511,
@@ -64,7 +67,7 @@ def format_attendance():
         return f"*❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n" \
                f"ATD code ထည့်သွင်းရန် /addatd ကိုအသုံးပြုပါ။\n\n_(Synced: {current_date})_"
 
-    text = f"*▫️Attendance Codes (Requested at: {current_time})*\n\n"
+    text = f"*▫️Attendance Codes (Requested at: {get_time()})*\n\n"
     for section, subjects in attendance_data.items():
         text += f'*Section "{section.upper()}"*\n'
         for subject, code in subjects.items():
@@ -144,6 +147,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
