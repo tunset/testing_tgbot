@@ -35,7 +35,7 @@ current_date = datetime.now().strftime("%d-%b-%Y %a")
 current_time = datetime.now().strftime("%I:%M:%S %p")
 VPN_user = [] #NEW
 VPN_plan = [] #NEW
-VPNimg = "AgACAgUAAxkBAAIf_WmJqYzFyPX8oSO0-ri2gqWkqLlCAAKKDmsbGWhIVO1aM3Z5yAR6AQADAgADeQADOgQ" #Need to edit
+VPNimg = "AgACAgUAAxkBAAID-mmKAAEB3Vd6wswVzf17c-PUUWz19QAC3Q5rG7bwUFTlrVDdl_nTYgEAAwIAA3kAAzoE" #Replaced
 
 #NEW
 # ==== JSON setup for VPN ====
@@ -288,7 +288,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 async def handle_ss(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(update.message.photo[-1].file_id) #temp
     # 1. Access the 'photo' list
     photo_list = update.message.photo
 
@@ -510,6 +509,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
