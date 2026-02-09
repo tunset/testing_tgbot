@@ -3,10 +3,12 @@ import sys
 import asyncio
 from datetime import datetime
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, _updater
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, _updater, CallbackQueryHandler #New
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
 import json #NEW
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup #NEW
+from telegram.request import HTTPXRequest #temp
 
 # ===== Ping Server for Render =====
 async def handle_ping(request):
@@ -21,16 +23,47 @@ def setup_web_server():
 
 # ===== Config =====
 TOKEN = os.getenv("BOT_TOKEN")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #NEW
-USERS_FILE = os.path.join(BASE_DIR, "users.json") #NEW
-ADMIN_ID = int(os.getenv("ADMIN_ID")) #NEW
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
+USERS_FILE = os.path.join(BASE_DIR, "users.json") 
+ADMIN_ID = int(os.getenv("ADMIN_ID")) 
+VPN_PLAN_FILE = "vpn_plan.json" #NEW
+VPN_USER_FILE = "vpn_users.json" #NEW
 
 # ===== Data =====
 attendance_data = {}
 current_date = datetime.now().strftime("%d-%b-%Y %a")
 current_time = datetime.now().strftime("%I:%M:%S %p")
+VPN_user = [] #NEW
+VPN_plan = [] #NEW
+VPNimg = "AgACAgUAAxkBAAIf_WmJqYzFyPX8oSO0-ri2gqWkqLlCAAKKDmsbGWhIVO1aM3Z5yAR6AQADAgADeQADOgQ" #Need to edit
 
 #NEW
+# ==== JSON setup for VPN ====
+def load_vpn_data():
+    global VPN_plan, VPN_user
+    # Load VPN Plan
+    if os.path.exists(VPN_PLAN_FILE):
+        with open(VPN_PLAN_FILE, "r") as f:
+            VPN_plan = json.load(f)
+    else:
+        VPN_plan = []
+
+    # Load VPN Users
+    if os.path.exists(VPN_USER_FILE):
+        with open(VPN_USER_FILE, "r") as f:
+            VPN_user = json.load(f)
+    else:
+        VPN_user = [] # Keep your default
+
+def save_vpn_plan():
+    with open(VPN_PLAN_FILE, "w") as f:
+        json.dump(VPN_plan, f)
+
+def save_vpn_users():
+    with open(VPN_USER_FILE, "w") as f:
+        json.dump(VPN_user, f)
+
+
 #To save user info to JSON File
 def save_user_info(user):
     user_id = str(user.id)
@@ -174,6 +207,142 @@ def valid_subject(subject):
 
 # ===== Commands =====
 
+# === VPN Function === #NEW
+async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    userID = update.effective_user.id
+    # Get the type of the chat
+    chat_type = update.effective_chat.type
+    price = round(int(VPN_plan[0]) / 6, -2)
+    key = VPN_plan[4]
+
+    # work in a group
+    if chat_type in ["group", "supergroup"]:
+        if VPN_plan:
+            url = "https://t.me/nayhtoonaingss_bot?text=/vpn"
+            keyboard = []
+            text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
+            keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", url=url)])
+
+            await update.message.reply_photo(
+                photo=VPNimg,
+                caption=text,
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode="Markdown"
+            )
+    else:
+        #For DMs
+        if userID not in VPN_user:
+            if VPN_plan:
+                keyboard = []
+                text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
+                keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", callback_data=f"sub")])
+
+                await context.bot.send_photo(
+                    chat_id=userID,
+                    photo=VPNimg,
+                    caption=text,
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+        else:
+            text = (
+                f"💠 <b>Your {VPN_plan[5]} VPN Plan is Active Until {VPN_plan[2]} {VPN_plan[3]}</b>\n\n"
+                f"<b>Plan Details</b>\n"
+                f"▫️ {VPN_plan[1]} {VPN_plan[0]} Ks ({price} Ks For Each)\n"
+                f"👥 Sharing with {len(VPN_user)} people\n"
+                f"🔑 Key: <code>{key}</code>"
+            )
+            await update.message.reply_text(text=text, parse_mode="HTML")
+
+
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    data = query.data
+    user_id = query.from_user.id
+    userName = "@Unknown"
+    if query.from_user.username:
+        userName = "@" + query.from_user.username
+
+    keyboard = []
+    price = round(int(VPN_plan[0]) / 6, -2)
+
+    if data == "sub":
+        text = f"*KBZPay* - 09751336111 (Tun Set Paing)\n\nAmount to Transfer: {price} Ks\n\nIf you done transferring, Send screenshot and click '*Transferred*\n '"
+        keyboard.append([InlineKeyboardButton("✅ Transferred", callback_data="done")])
+        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
+
+    elif data == "done":
+        receipt_id = context.user_data.get("receipt_id")
+        if receipt_id:
+            await context.bot.send_photo(chat_id=ADMIN_ID, photo=receipt_id, caption=f"Screenshot from User: {user_id} {userName}")
+            await context.bot.send_message(chat_id=user_id,
+                                           text="✅ *Your Receipt has been sent to Admin*\n\nYou will get VPN key shortly after your receipt is being checked",
+                                           parse_mode="Markdown")
+        else:
+            # If they clicked the button WITHOUT sending a photo first
+            await context.bot.send_message(
+                chat_id=user_id,
+                text="⚠️ Please send the screenshot first, then click 'Transferred'!"
+            )
+
+async def handle_ss(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(update.message.photo[-1].file_id) #temp
+    # 1. Access the 'photo' list
+    photo_list = update.message.photo
+
+    # 2. Get the last item (highest resolution)
+    highest_res_photo = photo_list[-1]
+
+    # 3. Grab the file_id
+    context.user_data["receipt_id"] = highest_res_photo.file_id
+
+async def add_vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    if len(context.args) != 6:
+        await update.message.reply_text(
+            "Put VPN key in format like this(4000 150GB 20 Dec)[price size(GB) date month vpnName]"
+        )
+        return
+
+    price = context.args[0]
+    size = context.args[1]
+    day = context.args[2]
+    month = context.args[3]
+    key = str(context.args[4])
+    name = context.args[5]
+
+    # VPN_plan.extend([price, size, day, month, key, name])
+    VPN_plan.clear()
+    VPN_plan.extend([price, size, day, month, key, name])
+    save_vpn_plan()  # SAVE TO JSON
+
+    await update.message.reply_text(text=f"✅ VPN plan has been added")
+
+async def add_vpn_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 1:
+        return
+    userID = int(context.args[0])
+    # VPN_user.append(userID)
+    if userID not in VPN_user:
+        VPN_user.append(userID)
+        save_vpn_users()  # SAVE TO JSON
+    key = VPN_plan[4]
+    text = (
+        f"🎉 <b>Congratulations! You've successfully subscribed to {VPN_plan[5]} VPN plan</b>\n\n"
+        f"Your Plan is Active Until <b>{VPN_plan[2]} {VPN_plan[3]}</b>\n\n"
+        f"Here is your key ⬇️\n"
+        f"<code>{key}</code>\n"
+        f"(Click to copy)"
+    )
+
+    await context.bot.send_message(chat_id=userID, text=text, parse_mode="HTML")
+    await update.message.reply_text(text=f"✅ User {userID} added to subscription")
+
+
 #NEW
 #Broadcasting for users and groups from admin
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -302,7 +471,9 @@ async def handle_message(update, context):#added
 
 #Added partially
 if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
+    request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0) #NEW
+    app = ApplicationBuilder().token(TOKEN).request(request).build() #Partially Added
+    load_vpn_data() #NEW
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("addatd", addatd))
@@ -310,7 +481,12 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("chatid", chatid))
     app.add_handler(CommandHandler("clearatd", clearatd))
     app.add_handler(CommandHandler("broadcast", broadcast))  #NEW
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))  #NEW
+    app.add_handler(CommandHandler("vpn", vpn))  # NEW
+    app.add_handler(CommandHandler("addvpn", add_vpn))  # NEW
+    app.add_handler(CommandHandler("addvpnuser", add_vpn_user))  # NEW
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_ss)) #NEW
+    app.add_handler(CallbackQueryHandler(handle_callback)) #NEW
 
     scheduler = AsyncIOScheduler()
 
@@ -334,6 +510,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
