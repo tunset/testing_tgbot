@@ -218,7 +218,7 @@ async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # work in a group
     if chat_type in ["group", "supergroup"]:
         if VPN_plan:
-            url = "https://t.me/nayhtoonaingss_bot?text=/vpn"
+            url = "https://t.me/nhn_stdhelper_beta_bot?text=/vpn"
             keyboard = []
             text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
             keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", url=url)])
@@ -509,6 +509,7 @@ if __name__ == "__main__":
 
     print("✅ Bot + Web server started")
     app.run_polling()
+
 
 
 
