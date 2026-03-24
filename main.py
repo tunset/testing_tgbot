@@ -37,7 +37,7 @@ VPN_user = [] #NEW
 VPN_plan = [] #NEW
 VPNimg = "AgACAgUAAxkBAAID-mmKAAEB3Vd6wswVzf17c-PUUWz19QAC3Q5rG7bwUFTlrVDdl_nTYgEAAwIAA3kAAzoE" #Replaced
 
-#NEW
+
 # ==== JSON setup for VPN ====
 def load_vpn_data():
     global VPN_plan, VPN_user
@@ -83,7 +83,7 @@ def save_user_info(user):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-#NEW
+
 #For getting user ID from JSON File
 def get_userid():
     if not os.path.exists(USERS_FILE):
@@ -101,7 +101,7 @@ def reset_daily_data():
     attendance_data.clear()
     current_date = datetime.now().strftime("%d-%b-%Y %a")
 
-#Edited partially
+
 async def send_reminder(app):
     text = f"""*🚨ATD Reminder for those who forgot❗️*
 
@@ -114,7 +114,7 @@ Attendance ဖြည့်ဖို့မမေ့ကြပါနဲ့။ က�
 
 _(Reminded at {get_time()})_"""
 
-    #NEW
+    
     success = 0
     userid = get_userid()
     for chat_id in userid.keys():
@@ -141,7 +141,7 @@ def store_attendance(section, subject, code):
     attendance_data[section][subject] = code
 
 
-#Added partially
+
 def format_attendance():
     if not attendance_data:
         return f"*❗ Attendance Code ထည့်သွင်းထားခြင်းမရှိသေးပါ။*\n\n" \
@@ -159,7 +159,7 @@ def format_attendance():
     return text.strip()
 
 
-#NEW
+
 def valid_section(section):
     num = "1234567890"
     alpha = "BCDEFGHIJKLMNOPQRSTUVWXYZ-"
@@ -186,7 +186,7 @@ def valid_section(section):
     return section
 
 
-#NEW
+
 def valid_subject(subject):
     if subject[0] == "C":
         subject = "Chemistry"
@@ -207,12 +207,12 @@ def valid_subject(subject):
 
 # ===== Commands =====
 
-# === VPN Function === #NEW
+# === VPN Function === 
 async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
     userID = update.effective_user.id
     # Get the type of the chat
     chat_type = update.effective_chat.type
-    price = round(int(VPN_plan[0]) / 6, -2)
+    price = round(int(VPN_plan[0]) / 3, -2) + 200
     key = VPN_plan[4]
 
     # work in a group
@@ -220,7 +220,7 @@ async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if VPN_plan:
             url = "https://t.me/nhn_stdhelper_beta_bot?text=/vpn"
             keyboard = []
-            text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
+            text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 3 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
             keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", url=url)])
 
             await update.message.reply_photo(
@@ -234,7 +234,7 @@ async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if userID not in VPN_user:
             if VPN_plan:
                 keyboard = []
-                text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
+                text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 3 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
                 keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", callback_data=f"sub")])
 
                 await context.bot.send_photo(
@@ -342,7 +342,7 @@ async def add_vpn_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(text=f"✅ User {userID} added to subscription")
 
 
-#NEW
+
 #Broadcasting for users and groups from admin
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
@@ -394,7 +394,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-#NEW
+
 async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user_info(update.effective_user)
     if len(context.args) < 3:
@@ -416,14 +416,14 @@ async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-#Added partially
+
 async def atd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user_info(update.effective_user) #NEW
     text = format_attendance()
     await update.message.reply_text(text, parse_mode="Markdown")
 
 
-#Edited the whole
+
 async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user_info(update.effective_user)
     if len(context.args) < 2:
@@ -462,30 +462,30 @@ async def clearatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-#NEW
-async def handle_message(update, context):#added
+
+async def handle_message(update, context):
     save_user_info(update.effective_user)
 
 # ===== Main =====
 
-#Added partially
+
 if __name__ == "__main__":
-    request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0) #NEW
-    app = ApplicationBuilder().token(TOKEN).request(request).build() #Partially Added
-    load_vpn_data() #NEW
+    request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0) 
+    app = ApplicationBuilder().token(TOKEN).request(request).build() 
+    load_vpn_data() 
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("addatd", addatd))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("chatid", chatid))
     app.add_handler(CommandHandler("clearatd", clearatd))
-    app.add_handler(CommandHandler("broadcast", broadcast))  #NEW
-    app.add_handler(CommandHandler("vpn", vpn))  # NEW
-    app.add_handler(CommandHandler("addvpn", add_vpn))  # NEW
-    app.add_handler(CommandHandler("addvpnuser", add_vpn_user))  # NEW
+    app.add_handler(CommandHandler("broadcast", broadcast))  
+    app.add_handler(CommandHandler("vpn", vpn))  
+    app.add_handler(CommandHandler("addvpn", add_vpn))  
+    app.add_handler(CommandHandler("addvpnuser", add_vpn_user))  
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_ss)) #NEW
-    app.add_handler(CallbackQueryHandler(handle_callback)) #NEW
+    app.add_handler(MessageHandler(filters.PHOTO, handle_ss)) 
+    app.add_handler(CallbackQueryHandler(handle_callback)) 
 
     scheduler = AsyncIOScheduler()
 
