@@ -266,7 +266,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         userName = "@" + query.from_user.username
 
     keyboard = []
-    price = round(int(VPN_plan[0]) / 6, -2)
+    price = round(int(VPN_plan[0]) / 3, -2) + 200
 
     if data == "sub":
         text = f"*KBZPay* - 09751336111 (Tun Set Paing)\n\nAmount to Transfer: {price} Ks\n\nIf you done transferring, Send screenshot and click '*Transferred*\n '"
