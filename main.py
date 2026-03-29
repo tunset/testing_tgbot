@@ -3,7 +3,6 @@ import random
 import sys
 import asyncio
 from datetime import datetime
-from sys import orig_argv
 
 from telegram import Update, ForceReply
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, _updater, CallbackQueryHandler, ConversationHandler  # New
@@ -12,7 +11,6 @@ from aiohttp import web
 import json #NEW
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup #NEW
 from telegram.request import HTTPXRequest #temp
-# from telegram.ext import Application, ApplicationBuilder
 import random
 
 # ===== Ping Server for Render =====
