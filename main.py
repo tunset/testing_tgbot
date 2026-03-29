@@ -661,7 +661,7 @@ if __name__ == "__main__":
     )
 
     reminder_conv = ConversationHandler(
-        entry_points=[CommandHandler("setReminder", setReminder)],
+        entry_points=[CommandHandler("setreminder", setReminder)],
         states={remind_data: [
             MessageHandler(filters.TEXT & filters.REPLY & ~filters.COMMAND, handle_remind_reply)
         ]}, fallbacks=[], conversation_timeout=60
