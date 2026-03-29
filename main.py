@@ -621,7 +621,11 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chatID = update.effective_chat.id
     chat_type = update.effective_chat.type
     if chat_type in ["group", "supergroup"]:
-        if len(context.args) == 2 and context.args[0][0] == "@" and int(context.args[1]) <= 14:
+        if len(context.args) < 2:
+            await update.message.reply_text(
+                text="Mention ခေါ်ရန် အောက်ပါ format example အတိုင်းအသုံးပြုပါ။\n\n/call @username 5[times] (Maximum: 14 times)")
+            return
+        elif len(context.args) == 2 and context.args[0][0] == "@" and int(context.args[1]) <= 14:
             username = context.args[0]
             times = int(context.args[1])
             for i in range(0, times):
@@ -635,9 +639,8 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for i in range(0, times):
                 await app.bot.send_message(chat_id=chatID, text=f"{username} {text}")
         elif int(context.args[1]) > 14:
-            await update.message.reply_text(text="❌ တစ်ခါ mention ခေါ်တိုင်း ၁၄ခါထက်ကျော်ပြီးမခေါ်ပါနဲ့။ စားချင်ရာစား memory usage တော့လာမစားနဲ့(memory usage များလို့ပါ)")
-        else:
-            await update.message.reply_text(text="Mention ခေါ်ရန် အောက်ပါ format example အတိုင်းအသုံးပြုပါ။\n\n/call @username 5[times] (Maximum: 10 times)")
+            await update.message.reply_text(text="❌ တစ်ခါ mention ခေါ်တိုင်း 14 ခါထက်ကျော်ပြီးမခေါ်ပါနဲ့။ စားချင်ရာစား memory usage တော့လာမစားနဲ့(memory usage များလို့ပါ)")
+            return
     else:
         await update.message.reply_text(text="❌ Mention command ကို Group chat မှာသာအသုံးပြုနိုင်ပါတယ်။")
         return
