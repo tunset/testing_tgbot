@@ -687,7 +687,7 @@ if __name__ == "__main__":
 
     scheduler.add_job(reset_daily_data, "cron", hour=1, minute=11)
 
-    scheduler.start()
+    # scheduler.start()
 
     # Optional web server (if needed)
     web_app = setup_web_server()
