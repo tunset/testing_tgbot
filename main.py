@@ -623,7 +623,7 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if chat_type in ["group", "supergroup"]:
         if len(context.args) < 2:
             await update.message.reply_text(
-                text="Mention ခေါ်ရန် အောက်ပါ format example အတိုင်းအသုံးပြုပါ။\n\n/call @username 5[times] (Maximum: 14 times)")
+                text="Mention ခေါ်ရန် အောက်ပါ format example အတိုင်းအသုံးပြုပါ။\n\n/call @username 5[times] content(optional)")
             return
         elif len(context.args) == 2 and context.args[0][0] == "@" and int(context.args[1]) <= 14:
             username = context.args[0]
