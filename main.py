@@ -649,7 +649,7 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #Added partially
 if __name__ == "__main__":
-    request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0) #NEW
+    request = HTTPXRequest(connection_pool_size=100, connect_timeout=20.0, read_timeout=20.0) #NEW
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).request(request).build() #Partially Added
     load_vpn_data() #NEW
     atd_conv = ConversationHandler(
