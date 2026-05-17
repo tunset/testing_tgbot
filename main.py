@@ -719,7 +719,7 @@ async def weeklyleaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = format_leaderboard("🏆 Weekly Social Credit Leaderboard", get_ranked_users("weekly_social_points", 5))
     if not text:
-        await update.message.reply_text("No weekly social points yet.")
+        await update.message.reply_text("❗️ အပတ်စဉ် Social Credit Points မရှိသေးပါ။")
         return
 
     await update.message.reply_text(text, parse_mode="HTML", disable_web_page_preview=True)
