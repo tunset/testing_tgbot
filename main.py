@@ -570,7 +570,7 @@ async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if should_award_points:
         add_social_points(update.effective_user)
-        text += "\n\n🎉 You Gained +5 Social Points - /mypoints to show Your Total Points)"
+        text += "\n\n🎉 You Gained +5 Social Points - /mypoints to show Your Total Points"
 
     await update.message.reply_text(
         text=text, parse_mode="Markdown"
