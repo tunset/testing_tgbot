@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import asyncio
+import html
 from datetime import datetime
 
 from telegram import Update, ForceReply
@@ -32,14 +33,18 @@ reminderFile = os.path.join(BASE_DIR, "atd_reminders.json")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 VPN_PLAN_FILE = "vpn_plan.json" #NEW
 VPN_USER_FILE = "vpn_users.json" #NEW
+SOCIAL_POINTS_PER_ATD = 5
+WEEKLY_WINNER_ANNOUNCE_CHAT_IDS = [-1002412292404]
 
 # ===== Only for testing =====
-# TOKEN = "8169322933:AAFw-T485FHZrl8yI5VkSwPYwUOgSuwkgwc" #need to edit
+# TOKEN = "8059645292:AAHylr2L6n4ZU3d8iUJk72PAaq4tjsPury8" #need to edit
 # ADMIN_ID = 5069582224 #added
 # USERS_FILE = "users.json" #added
 # VPN_PLAN_FILE = "vpn_plan.json" #NEW
 # VPN_USER_FILE = "vpn_users.json" #NEW
 # reminderFile = "atd_reminders.json" # Where settings will live
+# SOCIAL_POINTS_PER_ATD = 5
+# WEEKLY_WINNER_ANNOUNCE_CHAT_IDS = [-1002339036511] # Add target group/chat IDs here
 
 # ===== Data =====
 attendance_data = {}
@@ -50,8 +55,8 @@ VPN_plan = [] #NEW
 VPNimg = "AgACAgUAAxkBAAID-mmKAAEB3Vd6wswVzf17c-PUUWz19QAC3Q5rG7bwUFTlrVDdl_nTYgEAAwIAA3kAAzoE" #Replaced
 mentionData = ["သူငယ်ချင်းလေး", "သူငယ်ချင်းလေး ဘာလုပ်", "သငခ ခေါ်နေတယ်လေ", "သငခ ကအဲ့လိုပေါ့ ရပါတယ် သိလိုက်ပါပြီ", "သငခရေ လာလို့", "သငခ စိတ်ကောက်နေတာလား",
                "သငခ ကဖိတ်ဖရန့်ကြီးပဲ", "သငခ ကရှယ်ချေတယ်နော်", "သူငယ်ချင်းရေးးးးးးးးးးးးးးးးးးးးးးးးးးးးး", "ချစ်သငခလေးးးးးးးးး", "သငခ ကငြိုငြင်တာလား မန်းရှင်းနေတယ်လေ",
-               "သငခ ကစိတ်ဓာတ်ပဲ", "ကောက်ပါနဲ့ကောက်ပါနဲ့ ဟိုးစတော့ကောက်ပါနဲ့", "သငခရေ ထမင်းဝအောင်စားထား", "သငခ ရေငုတ်နေတာလား", "သငခ ဂူအောင်းနေတာလား",
                "သငခ တမာရွက်စားပေးရတယ်", "mingalar pr chingu", "annyeonn", "what's uppp", "dude where are u", "yoo my friend", "yoooooo",
+               "သငခ ကစိတ်ဓာတ်ပဲ", "ကောက်ပါနဲ့ကောက်ပါနဲ့ ဟိုးစတော့ကောက်ပါနဲ့", "သငခရေ ထမင်းဝအောင်စားထား", "သငခ ရေငုတ်နေတာလား", "သငခ ဂူအောင်းနေတာလား",
                "သငခ ကအဖက်မလုပ်ဘူးပေါ့ ရပါတယ်", "သငခ သိလား။ သငခ မသိပါဘူး။ သငခ ကချေဖို့ပဲသိတာ။", "Hii Fake Frienddddd", "dude what u doin", "Konichiwaa"]
 
 
@@ -96,23 +101,150 @@ def save_vpn_users():
         json.dump(VPN_user, f)
 
 
+def load_users_data():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    with open(USERS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_users_data(data):
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
 #To save user info to JSON File
 def save_user_info(user):
     user_id = str(user.id)
 
-    data = {}
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    data = load_users_data()
+    user_data = data.get(user_id, {})
 
-    data[user_id] = {
+    user_data.update({
         "username": user.username or "",
         "first_name": user.first_name or "",
         "last_name": user.last_name or ""
-    }
+    })
+    user_data.setdefault("social_points", 0)
+    user_data.setdefault("weekly_social_points", 0)
+    data[user_id] = user_data
 
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    save_users_data(data)
+
+
+def add_social_points(user, points=SOCIAL_POINTS_PER_ATD):
+    user_id = str(user.id)
+    data = load_users_data()
+    user_data = data.get(user_id, {})
+
+    user_data.update({
+        "username": user.username or "",
+        "first_name": user.first_name or "",
+        "last_name": user.last_name or ""
+    })
+    user_data["social_points"] = int(user_data.get("social_points", 0)) + points
+    user_data["weekly_social_points"] = int(user_data.get("weekly_social_points", 0)) + points
+    data[user_id] = user_data
+
+    save_users_data(data)
+    return user_data["social_points"]
+
+def already_exist(section, subject, code):
+    return section in attendance_data and subject in attendance_data[section] and code in attendance_data[section][subject]
+
+def for_edit(section, subject, code):
+    return section in attendance_data and subject in attendance_data[section] and code not in attendance_data[section][subject]
+
+def should_award_social_points(section, subject):
+    return section not in attendance_data or subject not in attendance_data[section]
+
+
+def get_ranked_users(point_key="social_points", limit=None):
+    ranked_users = []
+    for user_id, user_data in get_userid().items():
+        points = int(user_data.get(point_key, 0))
+        if points > 0:
+            ranked_users.append((user_id, user_data, points))
+
+    ranked_users.sort(key=lambda item: item[2], reverse=True)
+    if limit:
+        return ranked_users[:limit]
+    return ranked_users
+
+
+def get_leaderboard_name(user_id, user_data):
+    username = user_data.get("username", "")
+    full_name = f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip()
+    if full_name:
+        return full_name
+    elif username:
+        return f"@{username}"
+
+    return f"User {user_id}"
+
+def get_leaderboard_username(user_data):
+    username = user_data.get("username", "")
+    return f"{username}"
+
+def format_leaderboard(title, ranked_users):
+    if not ranked_users:
+        return None
+
+    text = f"<b>{html.escape(title)}</b>\n\n"
+    for index, (user_id, user_data, points) in enumerate(ranked_users, start=1):
+        name = html.escape(get_leaderboard_name(user_id, user_data))
+        text += f"""{index}. <a href="https://t.me/{get_leaderboard_username(user_data)}">{name}</a> - <b>{points}</b> NHN\n"""
+
+    return text
+
+
+def format_user_link(user_data):
+    name = html.escape(get_leaderboard_name("", user_data))
+    username = get_leaderboard_username(user_data)
+    if username:
+        return f"""<a href="https://t.me/{html.escape(username)}">{name}</a>"""
+    return name
+
+
+async def announce_weekly_winners(app):
+    if not WEEKLY_WINNER_ANNOUNCE_CHAT_IDS:
+        return
+
+    top_users = get_ranked_users("weekly_social_points", 3)
+    if not top_users:
+        return
+
+    winner_id, winner_data, winner_points = top_users[0]
+    text = (
+        "<b>🏆 Weekly Social Credit Winners</b>\n\n"
+        f"🎉 Winner: {format_user_link(winner_data)} with <b>{winner_points}</b> NHN\n\n"
+    )
+
+    other_top_users = top_users[1:]
+    if other_top_users:
+        place_names = {2: "ဒုတိယဆု", 3: "တတိယဆု"}
+        for index, (user_id, user_data, points) in enumerate(other_top_users, start=2):
+            text += f"▫️<b>{place_names[index]}</b>\n{format_user_link(user_data)} with <b>{points}</b> NHN\n\n"
+        text += f"<i>(Announced at {current_date})</i>"
+
+    for chat_id in WEEKLY_WINNER_ANNOUNCE_CHAT_IDS:
+        try:
+            await app.bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                parse_mode="HTML",
+                disable_web_page_preview=True
+            )
+        except Exception as e:
+            await app.bot.send_message(chat_id=ADMIN_ID, text=f"❌ Failed to send weekly winners to {chat_id}: {e}")
+
+
+async def reset_weekly_leaderboard():
+    data = load_users_data()
+    for user_data in data.values():
+        user_data["weekly_social_points"] = 0
+
+    save_users_data(data)
 
 #NEW
 #For atd reminder users
@@ -137,8 +269,7 @@ def save_reminder_user(user):
 def get_userid():
     if not os.path.exists(USERS_FILE):
         return {}
-    with open(USERS_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_users_data()
 
 
 def get_time():
@@ -220,141 +351,6 @@ def valid_subject(subject):
 
 # ===== Commands =====
 
-# === VPN Function === #NEW
-async def vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    userID = update.effective_user.id
-    # Get the type of the chat
-    chat_type = update.effective_chat.type
-    price = round(int(VPN_plan[0]) / 6, -2)
-    key = VPN_plan[4]
-
-    # work in a group
-    if chat_type in ["group", "supergroup"]:
-        if VPN_plan:
-            url = "https://t.me/nhn_stdhelper_beta_bot?text=/vpn"
-            keyboard = []
-            text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
-            keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", url=url)])
-
-            await update.message.reply_photo(
-                photo=VPNimg,
-                caption=text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode="Markdown"
-            )
-    else:
-        #For DMs
-        if userID not in VPN_user:
-            if VPN_plan:
-                keyboard = []
-                text = f"*{VPN_plan[5]} VPN*\n\n*▫️Ongoing plan*\n- {VPN_plan[0]} Ks: {VPN_plan[1]} Expire on {VPN_plan[2]} {VPN_plan[3]}(Limit to 6 people)\n\nIndividual Fee: {price}Ks (Bot fee Included)\n\n👥 Currently Shared with {len(VPN_user)} users\n\n"
-                keyboard.append([InlineKeyboardButton("💳 Subscribe VPN Plan", callback_data=f"sub")])
-
-                await context.bot.send_photo(
-                    chat_id=userID,
-                    photo=VPNimg,
-                    caption=text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode="Markdown"
-                )
-        else:
-            text = (
-                f"💠 <b>Your {VPN_plan[5]} VPN Plan is Active Until {VPN_plan[2]} {VPN_plan[3]}</b>\n\n"
-                f"<b>Plan Details</b>\n"
-                f"▫️ {VPN_plan[1]} {VPN_plan[0]} Ks ({price} Ks For Each)\n"
-                f"👥 Sharing with {len(VPN_user)} people\n"
-                f"🔑 Key: <code>{key}</code>"
-            )
-            await update.message.reply_text(text=text, parse_mode="HTML")
-
-
-async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    data = query.data
-    user_id = query.from_user.id
-    userName = "@Unknown"
-    if query.from_user.username:
-        userName = "@" + query.from_user.username
-
-    keyboard = []
-    price = round(int(VPN_plan[0]) / 6, -2)
-
-    if data == "sub":
-        text = f"*KBZPay* - 09751336111 (Tun Set Paing)\n\nAmount to Transfer: {price} Ks\n\nIf you done transferring, Send screenshot and click '*Transferred*\n '"
-        keyboard.append([InlineKeyboardButton("✅ Transferred", callback_data="done")])
-        await context.bot.send_message(chat_id=user_id, text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
-
-    elif data == "done":
-        receipt_id = context.user_data.get("receipt_id")
-        if receipt_id:
-            await context.bot.send_photo(chat_id=ADMIN_ID, photo=receipt_id, caption=f"Screenshot from User: {user_id} {userName}")
-            await context.bot.send_message(chat_id=user_id,
-                                           text="✅ *Your Receipt has been sent to Admin*\n\nYou will get VPN key shortly after your receipt is being checked",
-                                           parse_mode="Markdown")
-        else:
-            # If they clicked the button WITHOUT sending a photo first
-            await context.bot.send_message(
-                chat_id=user_id,
-                text="⚠️ Please send the screenshot first, then click 'Transferred'!"
-            )
-
-async def handle_ss(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 1. Access the 'photo' list
-    photo_list = update.message.photo
-
-    # 2. Get the last item (highest resolution)
-    highest_res_photo = photo_list[-1]
-
-    # 3. Grab the file_id
-    context.user_data["receipt_id"] = highest_res_photo.file_id
-
-async def add_vpn(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return
-
-    if len(context.args) != 6:
-        await update.message.reply_text(
-            "Put VPN key in format like this(4000 150GB 20 Dec)[price size(GB) date month vpnName]"
-        )
-        return
-
-    price = context.args[0]
-    size = context.args[1]
-    day = context.args[2]
-    month = context.args[3]
-    key = str(context.args[4])
-    name = context.args[5]
-
-    # VPN_plan.extend([price, size, day, month, key, name])
-    VPN_plan.clear()
-    VPN_plan.extend([price, size, day, month, key, name])
-    save_vpn_plan()  # SAVE TO JSON
-
-    await update.message.reply_text(text=f"✅ VPN plan has been added")
-
-async def add_vpn_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if len(context.args) != 1:
-        return
-    userID = int(context.args[0])
-    # VPN_user.append(userID)
-    if userID not in VPN_user:
-        VPN_user.append(userID)
-        save_vpn_users()  # SAVE TO JSON
-    key = VPN_plan[4]
-    text = (
-        f"🎉 <b>Congratulations! You've successfully subscribed to {VPN_plan[5]} VPN plan</b>\n\n"
-        f"Your Plan is Active Until <b>{VPN_plan[2]} {VPN_plan[3]}</b>\n\n"
-        f"Here is your key ⬇️\n"
-        f"<code>{key}</code>\n"
-        f"(Click to copy)"
-    )
-
-    await context.bot.send_message(chat_id=userID, text=text, parse_mode="HTML")
-    await update.message.reply_text(text=f"✅ User {userID} added to subscription")
-
-
 #Broadcasting for users and groups from admin
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
@@ -396,6 +392,33 @@ async def chatid(update, context):
     await update.message.reply_text(f"This chat ID: {update.effective_chat.id}")
 
 
+async def legacy_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_type = update.effective_chat.type
+    if chat_type not in ["group", "supergroup"]:
+        await update.message.reply_text("âŒ Leaderboard command can only be used in groups.")
+        return
+
+    users = get_userid()
+    ranked_users = []
+    for user_id, user_data in users.items():
+        points = int(user_data.get("social_points", 0))
+        if points > 0:
+            ranked_users.append((user_id, user_data, points))
+
+    ranked_users.sort(key=lambda item: item[2], reverse=True)
+    top_users = ranked_users[:5]
+
+    if not top_users:
+        await update.message.reply_text("No social points yet.")
+        return
+
+    text = "🏆 *Social Credit Leaderboard*\n\n"
+    for index, (user_id, user_data, points) in enumerate(top_users, start=1):
+        name = get_leaderboard_name(user_id, user_data)
+        text += f"{index}. {name} - *{points}* points\n"
+
+    await update.message.reply_text(text, parse_mode="Markdown")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 မင်္ဂလာပါနေထူးနိုင်သားများ။ Attendance Bot ကနေကြိုဆိုပါတယ်။ 🤓\n\n"
@@ -425,7 +448,7 @@ async def send_per_chat_reminder_callback(application: Application, chat_id: int
             chat_id=chat_id,
             text=text,
             parse_mode="Markdown",
-            disable_web_page_preview=False  # Let them see the login link preview
+            # disable_web_page_preview=False  # Let them see the login link preview
         )
         await application.bot.send_message(chat_id=ADMIN_ID, text=f"✅ Successfully sent reminder to {chat_id}")
     except Exception as e:
@@ -503,6 +526,7 @@ async def handle_remind_reply(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         return remind_data
 
+
 # --- MAIN SETUP: STARTUP LOGIC ---
 # This is a critical step user missed. On bot boot, we must load all saved jobs.
 async def post_init(application: Application):
@@ -532,11 +556,24 @@ async def addatd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     validSection = valid_section(section)
     validSubject = valid_subject(subject)
+    should_award_points = should_award_social_points(validSection, validSubject)
+    alreadyExist = already_exist(validSection, validSubject, code)
+    toEdit = for_edit(validSection, validSubject, code)
     store_attendance(validSection, validSubject, code)
 
+    if alreadyExist:
+        text = f"❗️ Section *{validSection}* အတွက် *{validSubject}* Code က ATD List ထဲတွင်ရှိနှင့်ပြီးသားပါ။\n\n /atd - to see ATD List"
+    elif toEdit:
+        text = f"📝 Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာပြင်ဆင်ပြီးပါပြီ။\n\n /atd - to see ATD List"
+    else:
+        text = f"✅ Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာထည့်သွင်းပြီးပါပြီ။\n\n /atd - to see ATD List"
+
+    if should_award_points:
+        add_social_points(update.effective_user)
+        text += "\n\n🎉 You Gained +5 Social Points - /mypoints to show Your Total Points)"
+
     await update.message.reply_text(
-        f"✅ Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာထည့်သွင်းပြီးပါပြီ။\n\n /atd - to see ATD List",
-        parse_mode="Markdown"
+        text=text, parse_mode="Markdown"
     )
     return ConversationHandler.END
 
@@ -547,10 +584,24 @@ async def handle_atd_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
         section, subject, code = parts[0].upper(), parts[1].capitalize(), " ".join(parts[2:]).upper()
         validSection = valid_section(section)
         validSubject = valid_subject(subject)
+        should_award_points = should_award_social_points(validSection, validSubject)
+        alreadyExist = already_exist(validSection, validSubject, code)
+        toEdit = for_edit(validSection, validSubject, code)
         store_attendance(validSection, validSubject, code)
 
+        if alreadyExist:
+            text = f"❗️ Section *{validSection}* အတွက် *{validSubject}* Code က ATD List ထဲတွင်ရှိနှင့်ပြီးသားပါ။\n\n /atd - to see ATD List"
+        elif toEdit:
+            text = f"📝 Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာပြင်ဆင်ပြီးပါပြီ။\n\n /atd - to see ATD List"
+        else:
+            text = f"✅ Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာထည့်သွင်းပြီးပါပြီ။\n\n /atd - to see ATD List"
+
+        if should_award_points:
+            add_social_points(update.effective_user)
+            text += "\n\n🎉 You Gained +5 Social Points - /mypoints to show Your Total Points"
+
         await update.message.reply_text(
-            f"✅ Section *{validSection}* အတွက် *{validSubject}* Code ကိုအောင်မြင်စွာထည့်သွင်းပြီးပါပြီ။\n\n /atd - to see ATD List",
+            text=text,
             parse_mode="Markdown"
         )
         return ConversationHandler.END
@@ -645,11 +696,57 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(text="❌ Mention command ကို Group chat မှာသာအသုံးပြုနိုင်ပါတယ်။")
         return
 
+
+async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_type = update.effective_chat.type
+    if chat_type not in ["group", "supergroup"]:
+        await update.message.reply_text("❌ Leaderboard command ကို Group chat မှာသာအသုံးပြုနိုင်ပါတယ်။")
+        return
+
+    text = format_leaderboard("🏆 Social Credit Leaderboard", get_ranked_users("social_points", 5))
+    if not text:
+        await update.message.reply_text("❗️ Social Credit Points မရှိသေးပါ။")
+        return
+
+    await update.message.reply_text(text, parse_mode="HTML", disable_web_page_preview=True)
+
+
+async def weeklyleaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_type = update.effective_chat.type
+    if chat_type not in ["group", "supergroup"]:
+        await update.message.reply_text("❌ Weekly leaderboard command ကို Group Chat မှာသာအသုံးပြုနိုင်ပါတယ်။")
+        return
+
+    text = format_leaderboard("🏆 Weekly Social Credit Leaderboard", get_ranked_users("weekly_social_points", 5))
+    if not text:
+        await update.message.reply_text("No weekly social points yet.")
+        return
+
+    await update.message.reply_text(text, parse_mode="HTML", disable_web_page_preview=True)
+
+
+async def mypoints(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    save_user_info(update.effective_user)
+    user_id = str(update.effective_user.id)
+    users = get_userid()
+    user_data = users.get(user_id, {})
+    lifetime_points = int(user_data.get("social_points", 0))
+    weekly_points = int(user_data.get("weekly_social_points", 0))
+
+    text = (
+        "🔘<b>Social Credit</b>\n\n"
+        f"Name: {user_data.get('first_name')} {user_data.get('last_name')}\n"
+        f"Total Points: <b>{lifetime_points} NHN</b>\n"
+        f"Weekly Points: <b>{weekly_points} NHN</b>"
+    )
+    await update.message.reply_text(text, parse_mode="HTML")
+
+
 # ===== Main =====
 
 #Added partially
 if __name__ == "__main__":
-    request = HTTPXRequest(connection_pool_size=100, connect_timeout=20.0, read_timeout=20.0) #NEW
+    request = HTTPXRequest(connect_timeout=20.0, read_timeout=20.0) #NEW
     app = ApplicationBuilder().token(TOKEN).post_init(post_init).request(request).build() #Partially Added
     load_vpn_data() #NEW
     atd_conv = ConversationHandler(
@@ -676,28 +773,28 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("chatid", chatid))
+    app.add_handler(CommandHandler("mypoints", mypoints))
+    app.add_handler(CommandHandler("leaderboard", leaderboard))
+    app.add_handler(CommandHandler("weeklyleaderboard", weeklyleaderboard))
     app.add_handler(CommandHandler("clearatd", clearatd))
     app.add_handler(CommandHandler("broadcast", broadcast))
-    app.add_handler(CommandHandler("vpn", vpn))
-    app.add_handler(CommandHandler("addvpn", add_vpn))
-    app.add_handler(CommandHandler("addvpnuser", add_vpn_user))
     app.add_handler(CommandHandler("call", mention))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_ss))
-    app.add_handler(CallbackQueryHandler(handle_callback))
 
     scheduler = AsyncIOScheduler()
 
     scheduler.add_job(reset_daily_data, "cron", hour=1, minute=11)
+    scheduler.add_job(announce_weekly_winners, "cron", day_of_week="sun", hour=9, minute=0, args=[app])
+    scheduler.add_job(reset_weekly_leaderboard, "cron", day_of_week="mon", hour=0, minute=0)
 
     # scheduler.start()
 
     # Optional web server (if needed)
-    web_app = setup_web_server()
-    runner = web.AppRunner(web_app)
-    asyncio.get_event_loop().run_until_complete(runner.setup())
-    site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-    asyncio.get_event_loop().run_until_complete(site.start())
+    # web_app = setup_web_server()
+    # runner = web.AppRunner(web_app)
+    # asyncio.get_event_loop().run_until_complete(runner.setup())
+    # site = web.TCPSite(runner, "0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    # asyncio.get_event_loop().run_until_complete(site.start())
 
     print("✅ Bot + Web server started")
     app.run_polling()
