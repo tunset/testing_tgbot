@@ -773,9 +773,9 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("atd", atd))
     app.add_handler(CommandHandler("chatid", chatid))
-    app.add_handler(CommandHandler("mypoints", mypoints))
-    app.add_handler(CommandHandler("leaderboard", leaderboard))
-    app.add_handler(CommandHandler("weeklyleaderboard", weeklyleaderboard))
+    #app.add_handler(CommandHandler("mypoints", mypoints))
+    #app.add_handler(CommandHandler("leaderboard", leaderboard))
+    #app.add_handler(CommandHandler("weeklyleaderboard", weeklyleaderboard))
     app.add_handler(CommandHandler("clearatd", clearatd))
     app.add_handler(CommandHandler("broadcast", broadcast))
     app.add_handler(CommandHandler("call", mention))
@@ -784,8 +784,8 @@ if __name__ == "__main__":
     scheduler = AsyncIOScheduler()
 
     scheduler.add_job(reset_daily_data, "cron", hour=1, minute=11)
-    scheduler.add_job(announce_weekly_winners, "cron", day_of_week="sun", hour=9, minute=0, args=[app])
-    scheduler.add_job(reset_weekly_leaderboard, "cron", day_of_week="mon", hour=0, minute=0)
+    #scheduler.add_job(announce_weekly_winners, "cron", day_of_week="sun", hour=9, minute=0, args=[app])
+    #scheduler.add_job(reset_weekly_leaderboard, "cron", day_of_week="mon", hour=0, minute=0)
 
     # scheduler.start()
 
