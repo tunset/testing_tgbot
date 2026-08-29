@@ -681,6 +681,9 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
             times = int(context.args[1])
             for i in range(0, times):
                 await app.bot.send_message(chat_id=chatID, text=f"{username} {getRandomPhrase()}")
+        elif len(context.args) >= 3 and len(context.args[2]) > 175:
+            await update.message.reply_text(text="❌ Mention content ကိုအရှည်ကြီးမရေးကြပါနဲ့ တောင်းပန်ပါတယ်။ ဖင်ယားတာလေးတွေလျှော့")
+            return
         elif len(context.args) >= 3 and context.args[0][0] == "@" and int(context.args[1]) <= 14:
             text = ""
             for contents in context.args[2:]:
@@ -692,10 +695,9 @@ async def mention(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif int(context.args[1]) > 14:
             await update.message.reply_text(text="❌ တစ်ခါ mention ခေါ်တိုင်း 14 ခါထက်ကျော်ပြီးမခေါ်ပါနဲ့။ စားချင်ရာစား memory usage တော့လာမစားနဲ့(memory usage များလို့ပါ)")
             return
+
     else:
         await update.message.reply_text(text="❌ Mention command ကို Group chat မှာသာအသုံးပြုနိုင်ပါတယ်။")
-        return
-
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_type = update.effective_chat.type
@@ -777,7 +779,7 @@ if __name__ == "__main__":
     #app.add_handler(CommandHandler("leaderboard", leaderboard))
     #app.add_handler(CommandHandler("weeklyleaderboard", weeklyleaderboard))
     #app.add_handler(CommandHandler("clearatd", clearatd))
-    #app.add_handler(CommandHandler("broadcast", broadcast))
+    app.add_handler(CommandHandler("broadcast", broadcast))
     app.add_handler(CommandHandler("call", mention))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
