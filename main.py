@@ -787,7 +787,7 @@ if __name__ == "__main__":
     #scheduler.add_job(announce_weekly_winners, "cron", day_of_week="sun", hour=9, minute=0, args=[app])
     #scheduler.add_job(reset_weekly_leaderboard, "cron", day_of_week="mon", hour=0, minute=0)
 
-    scheduler.start()
+    # scheduler.start()
 
     # Optional web server (if needed)
     # web_app = setup_web_server()
