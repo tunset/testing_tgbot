@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     app.add_handler(CommandHandler("call", mention))
     app.add_handler(CommandHandler("callall", mention_everyone))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     print("✅ Bot + Web server started")
     app.run_polling()
